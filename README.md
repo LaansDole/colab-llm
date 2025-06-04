@@ -7,7 +7,12 @@ Run **local LLM models on Google Colab** and access them remotely via API — id
 ---
 
 ## Demo
+### Standalone Streamlit UI
 https://github.com/user-attachments/assets/4970aa34-27de-4b3c-ab4a-ad5f5e62de96
+### Gradio UI inside Google Colab
+https://github.com/user-attachments/assets/f8402996-4b96-4a24-9168-cf4a3af3e2b6
+
+---
 
 ## 🧩 Features
 
