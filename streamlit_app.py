@@ -46,11 +46,22 @@ def format_prompt(message, history, system_prompt=None):
     
     return formatted_prompt
 
+# Function to validate API URL
+def is_valid_url(url):
+    """Check if a URL is properly formatted."""
+    if not url:
+        return False
+    # Basic URL validation
+    return url.startswith(("http://", "https://"))
+
 # Function to chat with the LLM
 def chat_with_llm(message, api_url, model_name, temperature, top_p, max_tokens):
     """Send a message to the LLM API and get a response."""
-    if not message.strip() or not api_url:
-        return "Please enter a message and API URL."
+    if not message.strip():
+        return "Please enter a message.", ""
+    
+    if not is_valid_url(api_url):
+        return "Please enter a valid API URL starting with http:// or https://.", ""
     
     # Format conversation history
     history = st.session_state.messages.copy()
@@ -179,10 +190,14 @@ with st.sidebar:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"conversation_{timestamp}.json"
             
-            with open(filename, "w") as f:
-                json.dump(st.session_state.messages, f, indent=2)
-            
-            st.success(f"Conversation saved to {filename}")
+            try:
+                # Save to current directory
+                with open(filename, "w") as f:
+                    json.dump(st.session_state.messages, f, indent=2)
+                
+                st.success(f"Conversation saved to {filename}")
+            except Exception as e:
+                st.error(f"Failed to save conversation: {str(e)}")
         else:
             st.error("No conversation to save.")
 
@@ -224,10 +239,21 @@ st.sidebar.divider()
 st.sidebar.subheader("API Status")
 
 if st.session_state.api_url:
-    try:
-        response = requests.get(f"{st.session_state.api_url}", timeout=5)
-        st.sidebar.success("✅ API is reachable")
-    except:
-        st.sidebar.error("❌ API is not reachable")
+    if not is_valid_url(st.session_state.api_url):
+        st.sidebar.error("❌ Invalid API URL format")
+    else:
+        try:
+            # Try to reach the API health endpoint or models endpoint
+            response = requests.get(f"{st.session_state.api_url}/api/version", timeout=5)
+            if response.status_code == 200:
+                st.sidebar.success(f"✅ API is reachable (Ollama version: {response.json().get('version', 'unknown')})")
+            else:
+                st.sidebar.warning(f"⚠️ API returned status code {response.status_code}")
+        except requests.exceptions.ConnectionError:
+            st.sidebar.error("❌ API connection failed")
+        except requests.exceptions.Timeout:
+            st.sidebar.error("❌ API request timed out")
+        except Exception as e:
+            st.sidebar.error(f"❌ API check failed: {str(e)}")
 else:
     st.sidebar.warning("⚠️ API URL not set")
