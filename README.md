@@ -35,19 +35,17 @@ graph TD
         B -->|localhost:11434| C[Cloudflare Tunnel Agent]
     end
     
-    C -.->|Secure tunnel<br>No data processing| D[Cloudflare Service<br>.trycloudflare.com]
+    C -.->|Secure tunnel| D[Cloudflare Service]
     
-    subgraph "CLIENT INTERFACES"
-        D -->|API requests| E[Streamlit UI]
-        D -->|API requests| F[Gradio UI<br>(in notebooks)]
-        D -->|API requests| G[VS Code Extension]
-        D -->|API requests| H[Direct API Calls]
-    end
+    D -->|API requests| E[Streamlit UI]
+    D -->|API requests| F[Gradio UI]
+    D -->|API requests| G[VS Code Extension]
+    D -->|API requests| H[Direct API Calls]
     
-    E -.->|Requests flow back to<br>local processing| C
-    F -.->|Requests flow back to<br>local processing| C
-    G -.->|Requests flow back to<br>local processing| C
-    H -.->|Requests flow back to<br>local processing| C
+    E -.->|Requests return to local VM| C
+    F -.->|Requests return to local VM| C
+    G -.->|Requests return to local VM| C
+    H -.->|Requests return to local VM| C
     
     style A fill:#f9d0c4,stroke:#333,stroke-width:2px
     style B fill:#c4e0f9,stroke:#333,stroke-width:2px
@@ -149,3 +147,8 @@ For coding assistance:
 ## 🤝 Contributions
 
 Feel free to open issues, suggest improvements, or submit pull requests. Let's make local model hosting accessible for everyone!
+
+## Credits
+
+- [enescingoz/colab-llm](https://github.com/enescingoz/colab-llm)
+- [oobabooga/text-generation-webui](https://github.com/oobabooga/text-generation-webui)
