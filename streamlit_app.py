@@ -188,7 +188,7 @@ with st.sidebar:
     if st.button("Save Conversation"):
         if st.session_state.messages:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"conversation_{timestamp}.json"
+            filename = f"conversations/conversation_{timestamp}.json"
             
             try:
                 # Save to current directory
