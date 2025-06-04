@@ -188,10 +188,15 @@ with st.sidebar:
     if st.button("Save Conversation"):
         if st.session_state.messages:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            # Create conversations directory if it doesn't exist
+            import os
+            os.makedirs("conversations", exist_ok=True)
+            
             filename = f"conversations/conversation_{timestamp}.json"
             
             try:
-                # Save to current directory
+                # Save to conversations directory
                 with open(filename, "w") as f:
                     json.dump(st.session_state.messages, f, indent=2)
                 

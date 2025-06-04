@@ -1,0 +1,8 @@
+# Conversations Directory
+
+This directory stores saved chat conversations from the Streamlit interface.
+
+Conversation files are saved in JSON format with the naming convention:
+`conversation_YYYYMMDD_HHMMSS.json`
+
+Note: This file exists to ensure the directory is included in version control.

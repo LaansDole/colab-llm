@@ -2,7 +2,7 @@
 
 Run **local LLM models on Google Colab** and access them remotely via API — ideal for lightweight, cost-effective development and testing using [Ollama](https://ollama.com/) and [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/).
 
-> ✅ Access your Colab-hosted LLM API from anywhere — even inside VS Code using the [ROO Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) extension!
+> ✅ Access your Colab-hosted LLM API from anywhere — even inside VS Code using the [ROO Code](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) extension or our built-in Streamlit UI!
 
 ---
 
@@ -26,11 +26,61 @@ Run **local LLM models on Google Colab** and access them remotely via API — id
 
 ## 📝 How It Works
 
-1. Installs and launches **Ollama** in the background
+### System Architecture
+
+```mermaid
+graph TD
+    subgraph "LOCAL ENVIRONMENT (Google Colab VM)"
+        A[GPU Resources] -->|Powers| B[Local Ollama Server]
+        B -->|localhost:11434| C[Cloudflare Tunnel Agent]
+    end
+    
+    C -.->|Secure tunnel<br>No data processing| D[Cloudflare Service<br>.trycloudflare.com]
+    
+    subgraph "CLIENT INTERFACES"
+        D -->|API requests| E[Streamlit UI]
+        D -->|API requests| F[Gradio UI<br>(in notebooks)]
+        D -->|API requests| G[VS Code Extension]
+        D -->|API requests| H[Direct API Calls]
+    end
+    
+    E -.->|Requests flow back to<br>local processing| C
+    F -.->|Requests flow back to<br>local processing| C
+    G -.->|Requests flow back to<br>local processing| C
+    H -.->|Requests flow back to<br>local processing| C
+    
+    style A fill:#f9d0c4,stroke:#333,stroke-width:2px
+    style B fill:#c4e0f9,stroke:#333,stroke-width:2px
+    style C fill:#c4f9c5,stroke:#333,stroke-width:2px
+    style D fill:#f9f9c4,stroke:#333,stroke-width:2px
+    style E fill:#e0c4f9,stroke:#333,stroke-width:2px
+    style F fill:#f9c4e9,stroke:#333,stroke-width:2px
+    style G fill:#c4f9d0,stroke:#333,stroke-width:2px
+    style H fill:#f9c4c4,stroke:#333,stroke-width:2px
+```
+
+The architecture preserves the **100% local** nature of the LLM processing:
+
+1. **Google Colab VM**: Provides the GPU compute environment where all processing occurs
+2. **Local Ollama Server**: Runs locally within the Colab VM, handling model inference
+3. **Cloudflare Tunnel**: Creates a secure tunnel from localhost to a public URL (no data processing occurs at Cloudflare)
+4. **Public URL**: A randomly generated .trycloudflare.com address that securely forwards requests to your local Ollama instance
+5. **Client Interfaces**:
+   - **Streamlit UI**: A standalone web interface for conversing with your model
+   - **Gradio UI**: An alternative interface built directly into the notebooks
+   - **VS Code Extension**: Connect through ROO Code for coding assistance
+   - **Direct API**: Call the API directly from any application
+
+**Important**: All requests through the Cloudflare tunnel are securely forwarded to your local Ollama server. No inference or processing happens in the cloud - it all stays within your Colab VM.
+
+### Setup Process
+
+1. Installs and launches **Ollama** in the background of the Colab VM
 2. Pulls the selected model (e.g., `maryasov/qwen2.5-coder-cline:7b-instruct-q8_0`)
-3. Waits until Ollama is running and responsive
-4. Starts a **Cloudflare tunnel** to expose `http://localhost:11434`
-5. Prints a public `.trycloudflare.com` URL — ready to use
+3. Waits until Ollama is running and responsive on the VM's localhost
+4. Starts a **Cloudflare tunnel** to expose `http://localhost:11434` securely
+5. Provides a public `.trycloudflare.com` URL for API access
+6. Offers a Streamlit UI for easy interaction with your model
 
 ---
 
@@ -61,7 +111,31 @@ Follow these steps to get your local LLM running in Colab and accessible via pub
 
 ---
 
-## 💡 Use with ROO Code (VS Code Extension)
+## 💡 Use Options
+
+### Chat Interfaces
+
+#### Streamlit UI
+
+For a standalone, feature-rich chat interface:
+
+1. Run the Streamlit app provided in this repository
+2. Enter the Cloudflare tunnel URL in the settings
+3. Select your model and customize parameters
+4. Chat with your local LLM through a clean web interface
+
+#### Gradio UI (Built into Notebooks)
+
+For an instant, in-notebook chat experience:
+
+1. Run the notebook cells to start Ollama and create the tunnel
+2. The final cells will launch a Gradio interface
+3. A public Gradio URL will be generated for sharing
+4. Use this interface for quick testing without leaving Colab
+
+### ROO Code (VS Code Extension)
+
+For coding assistance:
 
 1. Install [ROO Code extension](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline)
 2. Open extension settings
